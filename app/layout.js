@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-
+import { dark } from "@clerk/themes";
 import {
   ClerkProvider,
 
@@ -17,7 +17,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}>
       <html lang="en" suppressHydrationWarning>
 
         <body className={`${inter.className}`}>
@@ -28,7 +31,7 @@ export default function RootLayout({ children }) {
             disableTransitionOnChange
           >
           <Navbar />
-          <main className="min-h-screen my-12 ">{children}</main>
+          <main className="min-h-screen mb-12 mt-32 ">{children}</main>
           <footer className="py-12 bg-muted">
             <div className="text-center px-4 text-white">
               © {new Date().getFullYear()} Blue Onion. All rights reserved.
