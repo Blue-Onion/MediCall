@@ -11,7 +11,7 @@ import {
 import { Button } from "./ui/button";
 const Navbar = () => {
   return (
-    <header className="fixed top-0 bg-background/60 backdrop-blur-lg w-full z-100">
+    <header className="fixed top-0 bg-background/60 border border-b backdrop-blur-lg w-full z-100">
       <nav className=" container max-w-none mx-auto flex items-center justify-between py-4 px-6">
         <Link href={"/"}>
           <Image
