@@ -10,11 +10,11 @@ import {
 } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { checkUser } from "@/lib/checkuser";
-import { Stethoscope, User } from "lucide-react";
+import { Shield, Stethoscope, User } from "lucide-react";
 const Navbar = async () => {
   const user = await checkUser();
   return (
-    <header className="fixed top-0 bg-background/60 border border-b backdrop-blur-lg w-full z-100">
+    <header className="fixed top-0 bg-background/60 border border-b backdrop-blur-lg w-full z-2">
       <nav className=" container max-w-none mx-auto flex items-center justify-between py-4 px-6">
         <Link href={"/"}>
           <Image
@@ -41,12 +41,24 @@ const Navbar = async () => {
                 </Button>
               )}
               {user.role === "DOCTOR" && (
-                <Button variant={"seconadry"} className="mr-2">
+                <Button variant={"outline"} className="mr-2">
                   <Link href={"/doctor"}>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                       <Stethoscope className="h-4 w-4" />
                       <span className="hidden md:inline-block">
-                        Complete Profile
+                        Doctor Dashboard
+                      </span>
+                    </div>
+                  </Link>
+                </Button>
+              )}
+              {user.role === "ADMIN" && (
+                <Button variant={"outline"} className="mr-2">
+                  <Link href={"/admin"}>
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden md:inline-block">
+                        Admin Dashboard
                       </span>
                     </div>
                   </Link>

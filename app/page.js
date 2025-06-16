@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Pricing from "@/components/pricing";
 export default function Home() {
   return (
     <div className="bg-background">
@@ -122,6 +123,8 @@ export default function Home() {
             </p>
           </div>
           <div className="">
+            {/* Pricing Table */}
+            <Pricing/>
             <Card className={"mt-12 bg-muted/20 border-emerald-900/30"}>
               <CardHeader className={"pb-2 "}>
                 <CardTitle
