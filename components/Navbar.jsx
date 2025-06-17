@@ -77,12 +77,12 @@ const Navbar = async () => {
                   "PATIENT")&&(
                     <Link href={"/pricing"}>
                       <Badge className="bg-emerald-900/30 text-emerald-400 px-4 py-2 border-emerald-900" variant={"outline"}>
-                        <CreditCard className="h-4 w-4" />
+                        <CreditCard className="h-5 w-5" />
                         <span >
                           {
                             user?.role==="PATIENT"?(
                               <span className="hidden md:inline-block">
-                                Credits: {user?.credits || 0}
+                                {user?.credits || 0} Credits
                               </span>
                             ) : (
                               <span className="hidden md:inline-block">

@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
             disableTransitionOnChange
           >
           <Navbar />
-          <main className="min-h-screen mb-12 mt-64 ">{children}</main>
+          <main className="min-h-screen mb-12 mt-36 ">{children}</main>
           <footer className="py-12 bg-muted">
             <div className="text-center px-4 text-white">
               © {new Date().getFullYear()} Blue Onion. All rights reserved.
