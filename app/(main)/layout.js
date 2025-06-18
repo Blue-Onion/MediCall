@@ -2,7 +2,7 @@ import React from 'react'
 
 const layout = ({children}) => {
   return (
-    <div className='conainer my-16 max-w-none mx-auto px-4 py-8'>
+    <div className='container max-w-none mx-auto px-4 '>
       {children}
     </div>
   )
