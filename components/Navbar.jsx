@@ -15,8 +15,8 @@ import { checkAndAllocateCredits } from "@/action/credit";
 import { Badge } from "./ui/badge";
 const Navbar = async () => {
   const user = await checkUser();
-  console.log(user||"noooo");
-  
+  console.log(user || "noooo");
+
   if (user?.role === "PATIENT") {
     await checkAndAllocateCredits(user);
   }
@@ -35,7 +35,12 @@ const Navbar = async () => {
         </Link>
         <div className="flex items-center gap-5 space-x-4">
           <SignInButton>
-            <div className="">
+            <div className="flex gap-2">
+               <Link href={"/appointments"}>
+                <Button variant={"outline"} className="mr-2">
+                  My Appointments
+                </Button>
+              </Link>
               {user?.role === "UNASSIGNED" && (
                 <Button variant={"outline"} className="mr-2">
                   <Link href={"/onboarding"}>
@@ -72,29 +77,26 @@ const Navbar = async () => {
                   </Link>
                 </Button>
               )}
-              {(!user ||
-                user?.role ===
-                  "PATIENT")&&(
-                    <Link href={"/pricing"}>
-                      <Badge className="bg-emerald-900/30 text-emerald-400 px-4 py-2 border-emerald-900" variant={"outline"}>
-                        <CreditCard className="h-5 w-5" />
-                        <span >
-                          {
-                            user?.role==="PATIENT"?(
-                              <span className="hidden md:inline-block">
-                                {user?.credits || 0} Credits
-                              </span>
-                            ) : (
-                              <span className="hidden md:inline-block">
-                                Pricing
-                              </span>
-                            )
-                          }
-                          </span>
-                        
-                      </Badge>
-                    </Link>
-                  )}
+              {(!user || user?.role === "PATIENT") && (
+                <Link href={"/pricing"}>
+                  <Badge
+                    className="bg-emerald-900/30 text-emerald-400 px-4 py-2 border-emerald-900"
+                    variant={"outline"}
+                  >
+                    <CreditCard className="h-5 w-5" />
+                    <span>
+                      {user?.role === "PATIENT" ? (
+                        <span className="hidden md:inline-block">
+                          {user?.credits || 0} Credits
+                        </span>
+                      ) : (
+                        <span className="hidden md:inline-block">Pricing</span>
+                      )}
+                    </span>
+                  </Badge>
+                </Link>
+              )}
+             
             </div>
           </SignInButton>
           <SignedOut>
