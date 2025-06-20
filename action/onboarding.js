@@ -22,7 +22,7 @@ export async function setUserRole(formData) {
     throw new Error("User not found");
   }
 
-  const role = formData.get("role"); // fixed: role should be in quotes
+  const role = formData.get("role"); 
 
   if (!role || !["DOCTOR", "PATIENT"].includes(role)) {
     throw new Error("Invalid role");
@@ -46,7 +46,7 @@ export async function setUserRole(formData) {
     if (role === "DOCTOR") {
       const specialty = formData.get("specialty");
       const experience = parseInt(formData.get("experience"), 10);
-      const credentialUrl = formData.get("credentialUrl"); // fixed: credential spelling
+      const credentialUrl = formData.get("credentialUrl"); 
       const description = formData.get("description");
 
       if (!specialty || !experience || !credentialUrl || !description) {
@@ -61,7 +61,7 @@ export async function setUserRole(formData) {
           role: "DOCTOR",
           specialty,
           experience,
-          credentialUrl, // fixed: credential spelling
+          credentialUrl, 
           description,
           verificationStatus: "PENDING",
         },
