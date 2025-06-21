@@ -15,7 +15,7 @@ import { checkAndAllocateCredits } from "@/action/credit";
 import { Badge } from "./ui/badge";
 const Navbar = async () => {
   const user = await checkUser();
-  console.log(user || "noooo");
+
 
   if (user?.role === "PATIENT") {
     await checkAndAllocateCredits(user);
@@ -34,9 +34,9 @@ const Navbar = async () => {
           />
         </Link>
         <div className="flex items-center gap-5 space-x-4">
-          <SignInButton>
+          <SignedIn>
             <div className="flex gap-2">
-               <Link href={"/appointments"}>
+              <Link href={"/appointments"}>
                 <Button variant={"outline"} className="mr-2">
                   My Appointments
                 </Button>
@@ -96,16 +96,7 @@ const Navbar = async () => {
                   </Badge>
                 </Link>
               )}
-             
-            </div>
-          </SignInButton>
-          <SignedOut>
-            <SignInButton>
-              <Button variant={"secondary"}>Sign In</Button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton
+               <UserButton
               appearance={{
                 elements: {
                   avatarBox: "w-10 h-10",
@@ -114,7 +105,14 @@ const Navbar = async () => {
                 },
               }}
             />
+            </div>
           </SignedIn>
+          <SignedOut>
+            <SignInButton>
+              <Button variant={"secondary"}>Sign In</Button>
+            </SignInButton>
+          </SignedOut>
+          
         </div>
       </nav>
     </header>
