@@ -7,6 +7,7 @@ import {
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/themeProvider";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
           >
           <Navbar />
           <main className="min-h-screen mb-12 mt-36 ">{children}</main>
+          <Toaster richColors/>
           <footer className="py-12 bg-muted">
             <div className="text-center px-4 text-white">
               © {new Date().getFullYear()} Blue Onion. All rights reserved.
