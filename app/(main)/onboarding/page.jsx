@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/select";
 
 import { Label } from "@/components/ui/label";
-import { SPECIALTIES } from "@/lib/speciality";
+import { SPECIALTIES } from "@/lib/specialty";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 const doctorFormSchema = z.object({
-  speciality: z.string().min(1, "Speciality is required"),
-  experience: z.string().min(1, "Experience is required"),
+  specialty: z.string().min(1, "Specialty is required"),
+  experience: z.number().min(1, "Experience is required"),
   credentialUrl: z
     .string()
     .url("Please Enter Valid Url")
@@ -52,7 +52,7 @@ const page = () => {
   } = useForm({
     resolver: zodResolver(doctorFormSchema),
     defaultValues: {
-      speciality: "",
+      specialty: "",
       experience: undefined,
       credentialUrl: "",
       description: "",
@@ -64,6 +64,23 @@ const page = () => {
     formData.append("role", "PATIENT");
     await submitUserRole(formData);
   };
+  const onDoctorSubmit = async (data) => {
+  if (loading) return;
+
+  const formData = new FormData();
+  formData.append("role", "DOCTOR");
+  formData.append("specialty", data.specialty);
+  formData.append("experience", data.experience.toString());
+  formData.append("credentialUrl", data.credentialUrl);
+  formData.append("description", data.description);
+
+  for (const [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
+
+  await submitUserRole(formData);
+};
+
   useEffect(() => {
     if (data && data?.success) {
       toast.success("Role set successfully");
@@ -71,7 +88,7 @@ const page = () => {
       router.push(data?.redirect || "/doctors");
     }
   }, [data]);
-  const specialityValue = watch("speciality");
+  const specialtyValue = watch("specialty");
   // SetStep("doctor-form");
   if (step === "choose-role") {
     return (
@@ -156,37 +173,37 @@ const page = () => {
                 Please provide the following details to complete your profile
               </CardDescription>
             </div>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit(onDoctorSubmit)}>
               <div className="space-y-2">
                 <div className="">
-                  <Label className={"space-y-2 p-2"} htmlFor="speciality">
-                    Medical Speciality
+                  <Label className={"space-y-2 p-2"} htmlFor="specialty">
+                    Medical Specialty
                   </Label>
                   <Select
-                    onValueChange={(value) => setValue("speciality", value)}
+                    onValueChange={(value) => setValue("specialty", value)}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choose a speciality" />
+                      <SelectValue placeholder="Choose a specialty" />
                     </SelectTrigger>
                     <SelectContent>
-                      {SPECIALTIES.map((speciality, index) => (
+                      {SPECIALTIES.map((specialty, index) => (
                         <SelectItem
                           key={index}
                           className={"flex gap-2 items-center "}
-                          value={speciality.name}
+                          value={specialty.name}
                         >
                           <span className="text-emerald-300 font-bold">
-                            {speciality.icon}
+                            {specialty.icon}
                           </span>
-                          <div className="font-bold">{speciality.name}</div>
+                          <div className="font-bold">{specialty.name}</div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                {errors.speciality && (
+                {errors.specialty && (
                   <p className="text-sm text-red-500 mt-1">
-                    {errors.speciality.message}
+                    {errors.specialty.message}
                   </p>
                 )}
               </div>
@@ -248,11 +265,14 @@ const page = () => {
                   </p>
                 )}
               </div>
-              <div className="flex items-center">
-                <Button>Back</Button>
+              <div className="flex justify-between items-center mt-6">
+                <Button variant="destructive" className={"cursor-pointer"} onClick={()=>SetStep("choose-role")} disabled={loading} type="button">
+                  Back
+                </Button>
                 <Button
+               type="submit"
                   className={
-                    "cursor-pointer font-bold mt-2 bg-emerald-600 hover:text-white hover:bg-emerald-700"
+                    "cursor-pointer font-bold bg-emerald-600 hover:text-white hover:bg-emerald-700"
                   }
                   disabled={loading}
                 >
