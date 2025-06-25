@@ -19,6 +19,7 @@ export async function verifyAdmin() {
   } catch (error) {
     console.log(error);
   }
+  
 }
 export async function getPendingDoctor() {
   const isAdmin = await verifyAdmin();
@@ -80,6 +81,7 @@ export async function updateDoctorStatus(form) {
         revalidatePath("/admin");
         return {success:true}
     } catch (error) {
+        console.log(error);
         
     }
 
