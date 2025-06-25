@@ -12,7 +12,7 @@ export async function verifyAdmin() {
   try {
     const user = await db.user.findUnique({
       where: {
-        clerkUsrID: userId,
+        clerkUserId: userId,
       },
     });
     return user?.role === "ADMIN";
