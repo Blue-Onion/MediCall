@@ -76,7 +76,7 @@ if(data&&data?.success){
             </div>
           ) : (
             <div className="space-y-4">
-              {doctor.map((doc, index) => {
+              {doctor.map((doc) => {
                 return (
                   <Card
                     key={doc.id}

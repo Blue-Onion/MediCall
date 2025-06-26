@@ -9,9 +9,7 @@ const page = async() => {
         getPendingDoctor(),
         getVerifiedDoctor()
     ])
-    console.log(pendingDoctorsData);
-    console.log(verifiedDoctorsData);
-    
+ 
   return (
     <div>
       <TabsContent value="pending">

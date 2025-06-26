@@ -87,6 +87,8 @@ export async function updateDoctorStatus(form) {
 
 }
 export async function updateDoctorActiveStatus(form) {
+  console.log("Ok");
+  
     const isAdmin=await verifyAdmin();
     if(!isAdmin) throw new Error("Unauthorizied");
     const doctorId=form.get("doctorId")
@@ -107,6 +109,7 @@ export async function updateDoctorActiveStatus(form) {
         revalidatePath("/admin");
         return {success:true}
     } catch (error) {
+        console.log(error);
         
     }
 
