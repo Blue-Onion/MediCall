@@ -44,24 +44,33 @@ const VerfiedDoctor = ({ doctor }) => {
     errors,
   } = useFetch(updateDoctorActiveStatus);
   const handleStatusChange = async (doc) => {
-    console.log("nigwerefe");
-    
-    const confirmed = window.alert(`Are sure to Suspend ${doc.name} ?`);
-    if (!confirmed || loading) return;
+    if (loading) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to suspend ${doc.name}?`
+    );
+    if (!confirmed) return;
+
     const formData = new FormData();
     formData.append("doctorId", doc.id);
     formData.append("suspend", true);
-    setTargetDoctor(doc)
+
+    setTargetDoctor(doc);
     await submitStatusUpdate(formData);
   };
-  useEffect(() => {
-    if(data?.success&&targetDoctor){
-      toast.success(`Doctor ${targetDoctor.name} suspended Succesfully`);
-      setTargetDoctor(null)
 
+  useEffect(() => {
+    if (data?.success && targetDoctor) {
+      toast.success(`Doctor ${targetDoctor.name} suspended successfully`);
+
+      setFilteredDoctor((prev) =>
+        prev.filter((doc) => doc.id !== targetDoctor.id)
+      );
+
+      setTargetDoctor(null);
     }
-  }, [])
-  
+  }, [data, targetDoctor]);
+
   return (
     <div>
       <Card className={"border-emerald-950/20 "}>
@@ -86,51 +95,53 @@ const VerfiedDoctor = ({ doctor }) => {
         </CardHeader>
         <CardContent>
           <CardContent className="grid gap-4 mt-4">
-            {filteredDoctor.map((doc) => (
-              <Card key={doc.id} className="border p-4">
-                <CardContent className={"p-4 "}>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex gap-4">
-                      <div className="bg-muted/90 flex items-center rounded-full justify-center p-4 w-fit">
-                        <User className="text-emerald-400 h-5 w-5" />
+            {filteredDoctor.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+              {searchTerm
+                ? "No doctors match your search criteria."
+                : "No verified doctors available."}
+            </div>
+            ) : (
+              <>
+                {filteredDoctor.map((doc) => (
+                  <Card key={doc.id} className="border p-4">
+                    <CardContent className={"p-4 "}>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex gap-4">
+                          <div className="bg-muted/90 flex items-center rounded-full justify-center p-4 w-fit">
+                            <User className="text-emerald-400 h-5 w-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg">{doc.name}</h3>
+                            <p className="text-muted-foreground">
+                              {doc.specialty}.{doc.experience} years
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex self-end md:self-auto gap-4">
+                          <Badge className="bg-emerald-900/20 text-white border-emerald-900/30">
+                            Active
+                          </Badge>
+                          <Button
+                            variant={"outline"}
+                            onClick={() => handleStatusChange(doc)}
+                            size={"sm"}
+                            className="border-red-900/30 text-red-400 hover:bg-red-900/10"
+                          >
+                            {loading && targetDoctor.id === doc.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Ban className="h-4 w-4" />
+                            )}
+                            Suspend
+                          </Button>
+                        </div>
                       </div>
-                      <div className="">
-                        <h3 className="font-bold text-lg">{doc.name}</h3>
-                        <p className="text-muted-foreground">
-                          {doc.specialty}.{doc.experience}years
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex self-end md:self-auto gap-4">
-                      <Badge
-                        className={
-                          " bg-emerald-900/20 text-white border-emerald-900/30"
-                        }
-                      >
-                        Active
-                      </Badge>
-                      <Button
-                        variant={"outline"}
-                        onClick={()=>handleStatusChange(doc)}
-                        size={"sm"}
-                        className={
-                          "border-red-900/30 text-red-400 hover:bg-red-900/10"
-                        }
-                      >
-                        {loading && targetDoctor.id === doc.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          </>
-                        ) : (
-                          <Ban className="h-4 w-4" />
-                        )}
-                        Suspend
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
           </CardContent>
         </CardContent>
       </Card>

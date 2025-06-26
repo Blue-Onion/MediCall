@@ -93,7 +93,7 @@ if(data&&data?.success){
                           <div className="">
                             <h3 className="font-bold text-lg">{doc.name}</h3>
                             <p className="text-muted-foreground">
-                              {doc.specialty}.{doc.experience}years
+                              {doc.specialty}. {doc.experience}years
                             </p>
                           </div>
                         </div>
