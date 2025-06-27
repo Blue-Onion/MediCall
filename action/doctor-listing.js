@@ -6,7 +6,7 @@ export async function getDcotorBySpecialty(specialty) {
             where:{
                 role:"DOCTOR",
                 verificationStatus:"VERIFIED",
-                specialty:specialty
+                specialty:specialty.split("%20").join(" ")
             },
             orderBy:{
                 name:"asc"
