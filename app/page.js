@@ -47,7 +47,7 @@ export default function Home() {
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/doctor">
+                <Link href="/doctors">
                   <Button
                     size="lg"
                     variant={"outline"}
