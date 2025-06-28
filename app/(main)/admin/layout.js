@@ -3,7 +3,7 @@ import PageHeader from "@/components/pageHeader";
 import { AlertCircle, ShieldCheckIcon, User } from "lucide-react";
 import { redirect } from "next/navigation";
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const metadata = {
   title: "Admin Setting-Medimeet",
   description: "Manage doctor,patient and platform setting",
