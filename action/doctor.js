@@ -108,3 +108,6 @@ export async function getAvailableSlots() {
     return { success: false, error: error.message };
   }
 }
+export async function getDoctorAppointment() {
+ return []
+}
