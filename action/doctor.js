@@ -1,3 +1,4 @@
+"use server";
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -31,12 +32,9 @@ export async function setAvailibiltySlots(formData) {
       throw new Error("Start Time must be less than End Time");
     }
 
-    const existingSlots = await db.availability.findMany({
+   const existingSlots = await db.availability.findMany({
       where: {
         doctorId: doctor.id,
-      },
-      include: {
-        appointment: true,
       },
     });
 
@@ -109,5 +107,5 @@ export async function getAvailableSlots() {
   }
 }
 export async function getDoctorAppointment() {
- return []
+  return [];
 }

@@ -1,4 +1,4 @@
-import { getDoctorAppointment } from "@/action/doctor";
+import { getAvailableSlots, getDoctorAppointment } from "@/action/doctor";
 import { getCurrentUser } from "@/action/onboarding";
 import { redirect } from "next/navigation";
 import {
@@ -21,7 +21,7 @@ const page = async ({ children }) => {
   }
   const [appointmentsData, availibiltyData] = await Promise.all([
     getDoctorAppointment(),
-    getDoctorAppointment(),
+    getAvailableSlots(),
   ]);
 
   return (
@@ -49,14 +49,15 @@ const page = async ({ children }) => {
             <span>Availibility</span>
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent
-          value={"appointment"}
-          className={"border-none p-0"}
-        ></TabsContent>
-        <TabsContent value={"availibility"} className={"border-none p-0"}>
-          <AvailibilitySettings slots={availibiltyData.slots || []} />
-        </TabsContent>
+        <div className="md:col-span-3">
+          <TabsContent
+            value={"appointment"}
+            className={"border-none p-0"}
+          ></TabsContent>
+          <TabsContent value={"availibility"} className={"border-none p-0"}>
+            <AvailibilitySettings slots={availibiltyData.slots || []} />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
