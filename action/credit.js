@@ -83,3 +83,6 @@ export async function checkAndAllocateCredits(user) {
     console.log("Error checking and allocating credits:", error);
   }
 }
+export async function deductCreditsForAppointment(doctorId,pateintId) {
+  
+}

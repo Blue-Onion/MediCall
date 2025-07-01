@@ -1,7 +1,10 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { addDays, addMinutes, endOfDay, format, isBefore } from "date-fns";
+import { deductCreditsForAppointment } from "./credit";
+import { revalidatePath } from "next/cache";
 
 export async function getDoctorById(id) {
   try {
@@ -115,3 +118,101 @@ export async function getAvailableTimeSlot(id) {
     throw new Error("Failed to fetch doctor data");
   }
 }
+export async function bookAppointment(formData) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized ");
+  }
+  try {
+    const patient = await db.user.findUnique({
+      clerkUserId: userId,
+      role: "PATIENT",
+    });
+    if (!patient) {
+      throw new Error("Patent not found");
+    }
+    if (patient.credits < 2) {
+      throw new Error("Insufficient credits to book appointment");
+    }
+    const doctorId = formData.get("doctorId");
+    const startTime = formData.get("startTime");
+    const endTime = formData.get("endTime");
+    const patientDescription = formData.get("description") || null;
+    if (!doctorId || startTime || endTime) {
+      throw new Error("Doctor, start time and End time are required");
+    }
+    const doctor = db.user.findUnique({
+      wehre: {
+        id: doctorId,
+        role: "DOCTOR",
+        verificationStatus: "VERIFEID",
+      },
+    });
+    if (!doctor) {
+      throw new Error("Doctor not found or verified");
+    }
+    const overLappingAppointments = await db.appointment.findUnique({
+      where: {
+        doctorId: doctorId,
+        status: "SCHEDULE",
+        OR: [
+          {
+            startTime: {
+              lte: startTime,
+            },
+            endTime: {
+              gt: startTime,
+            },
+          },
+          {
+            startTime: {
+              lt: endTime,
+            },
+            endTime: {
+              gt: endTime,
+            },
+          },
+          {
+            startTime: {
+              gte: startTime,
+            },
+            endTime: {
+              lte: endTime,
+            },
+          },
+        ],
+      },
+    });
+    if (!overLappingAppointments) {
+      throw new Error("Slot is already Booked");
+    }
+    const sessionId = await createVideoSession();
+    const result = await db.$transaction(async (tx) => {
+      const { success, error } = await deductCreditsForAppointment(
+        doctor.id,
+        patient.id
+      );
+
+      if (!success) {
+        throw new Error(error || "Failed to deduct the credits");
+      }
+      const appointment = await tx.appointment.create({
+        data: {
+          patientId: patient.id,
+          doctorId: doctor.id,
+          startTime,
+          endTime,
+          patientDescription,
+          status: "SCHEDULE",
+          videoSessionId: sessionId,
+        },
+      });
+      return { appointment };
+    });
+    revalidatePath("/appointments");
+    return { result: result.appointment, success: true };
+  } catch (error) {
+    console.log(error);
+  }
+}
+async function createVideoSession() {}
