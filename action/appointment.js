@@ -5,7 +5,14 @@ import { auth } from "@clerk/nextjs/server";
 import { addDays, addMinutes, endOfDay, format, isBefore } from "date-fns";
 import { deductCreditsForAppointment } from "./credit";
 import { revalidatePath } from "next/cache";
+import { Auth } from "@vonage/auth";
 
+const creditnals=new Auth(
+  {
+    applicationId:process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID,
+    privateKey:process.env.VONAGE_PRIVATE_KEY
+  }
+)
 export async function getDoctorById(id) {
   try {
     const doctor = await db.user.findUniuqe({
