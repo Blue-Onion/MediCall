@@ -19,7 +19,7 @@ export async function checkAndAllocateCredits(user) {
       return user;
     }
 
-    
+
     const { has } = await auth();
     const hasBasic = has({ plan: "free_User" });
     const hasStandard = has({ plan: "standard" });
@@ -68,13 +68,13 @@ export async function checkAndAllocateCredits(user) {
         },
         data: {
           credits: {
-           
-              increment: creditsToAllocate,
-            
+
+            increment: creditsToAllocate,
+
           },
         },
       });
-      
+
     });
     revalidatePath("/doctor")
     revalidatePath("/appointments")
@@ -83,6 +83,72 @@ export async function checkAndAllocateCredits(user) {
     console.log("Error checking and allocating credits:", error);
   }
 }
-export async function deductCreditsForAppointment(doctorId,pateintId) {
-  
+export async function deductCreditsForAppointment(doctorId, userId) {
+  try {
+    const user = await db.user.findUnique({
+      where: {
+        id: userId,
+
+      }
+    })
+    if (!user) {
+      throw new Error("User not found")
+    }
+    if (user.credits < costAppointment) {
+      throw new Error("Insuffceint credits to book appointment")
+    }
+    const doctor = await db.user.findUnique({
+      where: {
+        id: doctorId,
+        role: "DOCTOR",
+        verificationStaus: "VERIFIED"
+      }
+    })
+    if (!doctor) {
+      throw new Error("Doctor not found")
+    }
+    const res = await db.$transaction(async (tx) => {
+      const updatedUser = await tx.creditTransaction.create({
+        data: {
+          userId: userId,
+          amount: -costAppointment,
+          type: "APPOINMENT_DEDUCTION",
+
+        }
+      })
+      await tx.creditTransaction.create({
+        data: {
+          userId: doctorId,
+          amount: costAppointment,
+          type: "APPOINMENT_DEDUCTION",
+
+        }
+      })
+      await tx.user.update({
+        where: {
+          id: doctorId,
+        },
+        data: {
+          credits: {
+            increment: costAppointment
+          }
+        }
+      })
+      await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          credits: {
+            decrement: costAppointment
+          }
+        }
+      })
+      return updatedUser
+
+    })
+    return {success:true,res:user}
+  } catch (error) {
+
+  }
 }

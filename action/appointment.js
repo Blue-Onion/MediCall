@@ -6,13 +6,14 @@ import { addDays, addMinutes, endOfDay, format, isBefore } from "date-fns";
 import { deductCreditsForAppointment } from "./credit";
 import { revalidatePath } from "next/cache";
 import { Auth } from "@vonage/auth";
-
-const creditnals=new Auth(
+import { Vonage } from "@vonage/server-sdk";
+const creditnals = new Auth(
   {
-    applicationId:process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID,
-    privateKey:process.env.VONAGE_PRIVATE_KEY
+    applicationId: process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID,
+    privateKey: process.env.VONAGE_PRIVATE_KEY,
   }
 )
+const vonage = new Vonage(creditnals, {})
 export async function getDoctorById(id) {
   try {
     const doctor = await db.user.findUniuqe({
@@ -222,4 +223,11 @@ export async function bookAppointment(formData) {
     console.log(error);
   }
 }
-async function createVideoSession() {}
+async function createVideoSession() {
+  try {
+    const session = await vonage.video.createSession({ mediaMode: "routed" })
+    return session.sessionId
+  } catch (error) {
+    throw new Error("Failed to create session" + error)
+  }
+}
