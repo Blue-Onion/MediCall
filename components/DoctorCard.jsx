@@ -56,7 +56,7 @@ const DoctorCard = ({ doctor }) => {
         <p className="mb-4 text-muted-foreground line-clamp-3">
           {doctor.description || "No description provided."}
         </p>
-        <Link href={`/doctor/${doctor.specialty}/${doctor.id}`}>
+        <Link href={`/doctors/${doctor.specialty}/${doctor.id}`}>
           <Button className={"w-full bg-emerald-600 font-bold hover:bg-emerald-700 text-white"}>
             <Calendar className="h-4 w-4 mr-2 " />
             View & Book Profile

@@ -1,6 +1,8 @@
 import { db } from "@/lib/prisma";
 
 export async function getDcotorBySpecialty(specialty) {
+  
+    
     try {
         const doctors=await db.User.findMany({
             where:{

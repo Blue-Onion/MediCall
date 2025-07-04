@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 const Page = async ({ params }) => {
-  const specialty = params?.specialty;
+  const specialty =await params.specialty;
+
 
   if (!specialty) {
     redirect("/doctors");

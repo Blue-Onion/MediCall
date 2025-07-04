@@ -72,7 +72,7 @@ export async function setAvailibiltySlots(formData) {
   }
 }
 
-export async function getAvailableSlots() {
+export async function getAvailableSlots(id) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -82,7 +82,7 @@ export async function getAvailableSlots() {
   try {
     const doctor = await db.user.findUnique({
       where: {
-        clerkUserId: userId,
+        id: id,
         role: "DOCTOR",
       },
     });
