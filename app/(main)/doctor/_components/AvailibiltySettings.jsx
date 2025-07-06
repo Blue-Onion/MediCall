@@ -169,9 +169,9 @@ const AvailibilitySettings = ({ slots }) => {
                 <div className="space-y-4">
                   <Label htmlFor="endTime">End Time</Label>
                   <Input
-                    id="startTime"
+                    id="endTime"
                     type="time"
-                    {...register("startTime", {
+                    {...register("endTime", {
                       required: "Start time is required",
                     })}
                     className="bg-background border-emerald-900/20"

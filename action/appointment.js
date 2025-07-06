@@ -1,5 +1,4 @@
 "use server";
-
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { addDays, addMinutes, endOfDay, format, isBefore } from "date-fns";
@@ -16,26 +15,27 @@ const credentials = new Auth({
 const vonage = new Vonage(credentials, {});
 
 export async function getDoctorById(id) {
+  console.log("🔍 [getDoctorById] called with ID:", id);
+
   try {
-    console.log("bc",id);
-    
     const doctor = await db.user.findUnique({
       where: { id: id },
     });
-   
-    
+
     if (!doctor || doctor.role !== "DOCTOR" || doctor.verificationStatus !== "VERIFIED") {
       throw new Error("Doctor not found or not verified");
     }
-    
-    return { doctor:doctor };
+
+    return { doctor: doctor };
   } catch (error) {
-    console.log(error);
+    console.error("❌ [getDoctorById] Error:", error);
     throw new Error("Failed to fetch doctor data");
   }
 }
 
 export async function getAvailableTimeSlot(id) {
+  console.log("🔍 [getAvailableTimeSlot] called with ID:", id);
+
   try {
     const doctor = await db.user.findUnique({ where: { id } });
 
@@ -58,7 +58,7 @@ export async function getAvailableTimeSlot(id) {
     const existingAppointments = await db.appointment.findMany({
       where: {
         doctorId: doctor.id,
-        status: "SCHEDULE",
+        status: "SCHEDULED",
         startTime: { lte: lastDay },
       },
     });
@@ -117,12 +117,14 @@ export async function getAvailableTimeSlot(id) {
 
     return { days: result };
   } catch (error) {
-    console.error(error);
+    console.error("❌ [getAvailableTimeSlot] Error:", error);
     throw new Error("Failed to fetch doctor data");
   }
 }
 
 export async function bookAppointment(formData) {
+  console.log("📅 [bookAppointment] called with formData keys:", [...formData.keys()]);
+
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -144,7 +146,6 @@ export async function bookAppointment(formData) {
     const endTime = formData.get("endTime");
     const patientDescription = formData.get("description") || null;
 
-    // ❌ Logic bug: `if (!doctorId || startTime || endTime)` always passes, fix:
     if (!doctorId || !startTime || !endTime) {
       throw new Error("Doctor, start time, and end time are required");
     }
@@ -214,18 +215,23 @@ export async function bookAppointment(formData) {
     });
 
     revalidatePath("/appointments");
+
     return { result: result.appointment, success: true };
   } catch (error) {
-    console.error(error);
+    console.error("❌ [bookAppointment] Error:", error);
     throw new Error("Booking failed");
   }
 }
 
 async function createVideoSession() {
+  console.log("📹 [createVideoSession] called");
+
   try {
     const session = await vonage.video.createSession({ mediaMode: "routed" });
+    console.log("✅ [createVideoSession] created session:", session.sessionId);
     return session.sessionId;
   } catch (error) {
+    console.error("❌ [createVideoSession] Error:", error);
     throw new Error("Failed to create video session: " + error.message);
   }
 }

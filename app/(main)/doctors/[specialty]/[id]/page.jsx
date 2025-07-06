@@ -1,5 +1,5 @@
-import { getDoctorById } from "@/action/appointment";
-import { getAvailableSlots } from "@/action/doctor";
+import { getAvailableTimeSlot, getDoctorById } from "@/action/appointment";
+
 import { redirect } from "next/navigation";
 import React from "react";
 import DoctorProfile from "./_components/DoctorProfile";
@@ -10,17 +10,14 @@ const page = async ({ params }) => {
   try {
     const [doctorData, slotData] = await Promise.all([
       getDoctorById(id),
-      getAvailableSlots(id),
+      getAvailableTimeSlot(id),
     ]);
-
-    console.log("heheh", doctorData);
-    console.log("hheehheehhhe", slotData);
 
     return (
       <div>
         <DoctorProfile
           doctor={doctorData.doctor}
-          availableDays={slotData?.slots || []}
+          availableDays={slotData?.days || []}
         />
       </div>
     );

@@ -131,34 +131,36 @@ const DoctorProfile = ({ doctor, availableDays }) => {
                 <h3 className="font-semibold text-white">Availability</h3>
               </div>
             </div>
-            {totalSlots > 0 ? (
-              <div className="flex items-center ">
-                <Calendar className="h-5 w-5 mr-2" />
-                <p className="text-muted-foreground">
-                  {totalSlots} time slots are available for booking.
-                </p>
-              </div>
-            ) : (
-              <Alert className="flex items-center ">
-                <AlertCircle className="h-5 w-5 mr-2" />
-                <AlertDescription className="text-muted-foreground">
-                  No available slots for next 4 days. Check again later
-                </AlertDescription>
-              </Alert>
-            )}
+            <div className="space-y-4">
+              {totalSlots > 0 ? (
+                <div className="flex items-center ">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  <p className="text-muted-foreground">
+                    {totalSlots} time slots are available for booking.
+                  </p>
+                </div>
+              ) : (
+                <Alert className="flex items-center ">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  <AlertDescription className="text-muted-foreground">
+                    No available slots for next 4 days. Check again later
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           </CardContent>
           {showBooking && (
-            <div id="booking-section" className="p-2">
+            <div id="booking-section" className="p-2 space-y-6">
               <Card className="border-emerald-900/20">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">
-                  Book an Appointment
-                </CardTitle>
-                <CardDescription>
-                  Select a time slot and provide details for your consultation
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-white">
+                    Book an Appointment
+                  </CardTitle>
+                  <CardDescription>
+                    Select a time slot and provide details for your consultation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
                   {totalSlots ? (
                     <></>
                   ) : (
