@@ -75,7 +75,7 @@ export async function setUserRole(formData) {
     throw new Error("Failed to set user role");
   }
 }
-export async function getCurrentUser(formData) {
+export async function getCurrentUser() {
   const { userId } = await auth();
 
   if (!userId) {

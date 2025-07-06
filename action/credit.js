@@ -101,7 +101,7 @@ export async function deductCreditsForAppointment(doctorId, userId) {
       where: {
         id: doctorId,
         role: "DOCTOR",
-        verificationStaus: "VERIFIED"
+        verificationStatus: "VERIFIED"
       }
     })
     if (!doctor) {
@@ -112,7 +112,7 @@ export async function deductCreditsForAppointment(doctorId, userId) {
         data: {
           userId: userId,
           amount: -costAppointment,
-          type: "APPOINMENT_DEDUCTION",
+          type: "APPOINTMENT_DEDUCTION",
 
         }
       })
@@ -120,7 +120,7 @@ export async function deductCreditsForAppointment(doctorId, userId) {
         data: {
           userId: doctorId,
           amount: costAppointment,
-          type: "APPOINMENT_DEDUCTION",
+          type: "APPOINTMENT_DEDUCTION",
 
         }
       })
@@ -149,6 +149,7 @@ export async function deductCreditsForAppointment(doctorId, userId) {
     })
     return {success:true,res:user}
   } catch (error) {
+console.log(error);
 
   }
 }

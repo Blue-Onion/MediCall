@@ -43,7 +43,7 @@ export async function getAvailableTimeSlot(id) {
     });
 
     if (!availability) {
-      throw new Error("No availability is set by the doctor");
+      return []
     }
 
     const now = new Date();
@@ -126,7 +126,7 @@ export async function bookAppointment(formData) {
       where: { clerkUserId: userId },
     });
 
-    if (!patient || patient.role !== "PATIENT") {
+    if (!patient) {
       throw new Error("Patient not found");
     }
 
@@ -154,7 +154,9 @@ export async function bookAppointment(formData) {
     if (!doctor) {
       throw new Error("Doctor not found or not verified");
     }
-
+if(doctor.clerkUserId===userId){
+   throw new Error("You cant appointmet for yourself");
+}
     const overlappingAppointments = await db.appointment.findFirst({
       where: {
         doctorId,
@@ -212,7 +214,7 @@ export async function bookAppointment(formData) {
     return { result: result.appointment, success: true };
   } catch (error) {
     console.error("❌ [bookAppointment] Error:", error);
-    throw new Error("Booking failed");
+    throw new Error(error.message);
   }
 }
 

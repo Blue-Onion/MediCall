@@ -121,8 +121,8 @@ const DoctorProfile = ({ doctor, availableDays }) => {
             </CardTitle>
             <CardDescription>{doctor.specialty}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className={"space-y-4"}>
+            <div className="">
               <div className="flex gap-2 items-center">
                 <FileText className="h-5 w-5 text-emerald-400" />
                 <h3 className="text-white font-semibold">Description</h3>
