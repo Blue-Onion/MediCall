@@ -23,7 +23,7 @@ const page = async ({ params }) => {
     );
   } catch (error) {
     console.log(error);
-    // redirect("/doctors");
+    redirect("/doctors");
   }
 };
 

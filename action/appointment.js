@@ -1,4 +1,5 @@
 "use server";
+
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { addDays, addMinutes, endOfDay, format, isBefore } from "date-fns";
@@ -15,18 +16,14 @@ const credentials = new Auth({
 const vonage = new Vonage(credentials, {});
 
 export async function getDoctorById(id) {
-  console.log("🔍 [getDoctorById] called with ID:", id);
-
   try {
-    const doctor = await db.user.findUnique({
-      where: { id: id },
-    });
+    const doctor = await db.user.findUnique({ where: { id } });
 
     if (!doctor || doctor.role !== "DOCTOR" || doctor.verificationStatus !== "VERIFIED") {
       throw new Error("Doctor not found or not verified");
     }
 
-    return { doctor: doctor };
+    return { doctor };
   } catch (error) {
     console.error("❌ [getDoctorById] Error:", error);
     throw new Error("Failed to fetch doctor data");
@@ -34,8 +31,6 @@ export async function getDoctorById(id) {
 }
 
 export async function getAvailableTimeSlot(id) {
-  console.log("🔍 [getAvailableTimeSlot] called with ID:", id);
-
   try {
     const doctor = await db.user.findUnique({ where: { id } });
 
@@ -123,8 +118,6 @@ export async function getAvailableTimeSlot(id) {
 }
 
 export async function bookAppointment(formData) {
-  console.log("📅 [bookAppointment] called with formData keys:", [...formData.keys()]);
-
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -165,7 +158,7 @@ export async function bookAppointment(formData) {
     const overlappingAppointments = await db.appointment.findFirst({
       where: {
         doctorId,
-        status: "SCHEDULE",
+        status: "SCHEDULED",
         OR: [
           {
             startTime: { lte: startTime },
@@ -206,7 +199,7 @@ export async function bookAppointment(formData) {
           startTime,
           endTime,
           patientDescription,
-          status: "SCHEDULE",
+          status: "SCHEDULED",
           videoSessionId: sessionId,
         },
       });
@@ -224,11 +217,8 @@ export async function bookAppointment(formData) {
 }
 
 async function createVideoSession() {
-  console.log("📹 [createVideoSession] called");
-
   try {
     const session = await vonage.video.createSession({ mediaMode: "routed" });
-    console.log("✅ [createVideoSession] created session:", session.sessionId);
     return session.sessionId;
   } catch (error) {
     console.error("❌ [createVideoSession] Error:", error);
