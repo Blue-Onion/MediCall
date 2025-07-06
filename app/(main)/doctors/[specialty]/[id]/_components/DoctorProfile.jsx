@@ -22,11 +22,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import SlotPicker from "./SlotPicker";
+import AppointmentForm from "./AppointmentForm";
+import { useRouter } from "next/navigation";
 const DoctorProfile = ({ doctor, availableDays }) => {
+  const router=useRouter()
   const [showBooking, setShowBooking] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const handleSelectSlot = (slot) => {
-    selectedSlot(slot);
+    setSelectedSlot(slot);
+  };
+  const handleBookingComplete = () => {
+    router.push("/appointments")
   };
   const totalSlots = availableDays.reduce(
     (total, day) => total + day.slots?.length,
@@ -162,7 +169,22 @@ const DoctorProfile = ({ doctor, availableDays }) => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {totalSlots ? (
-                    <></>
+                    <>
+                      {!selectedSlot && (
+                        <SlotPicker
+                          days={availableDays}
+                          onSelectedSlot={handleSelectSlot}
+                        />
+                      )}
+                      {selectedSlot && (
+                        <AppointmentForm
+                          doctorId={doctor.id}
+                          slot={selectedSlot}
+                          onBack={() => setSelectedSlot(null)}
+                          oncomplete={handleBookingComplete}
+                        />
+                      )}
+                    </>
                   ) : (
                     <div className="text-center py-6">
                       <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
