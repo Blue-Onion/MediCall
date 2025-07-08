@@ -1,15 +1,10 @@
 import { getAvailableSlots, getDoctorAppointment } from "@/action/doctor";
 import { getCurrentUser } from "@/action/onboarding";
 import { redirect } from "next/navigation";
-import {
-  AlertCircle,
-  Calendar,
-  Clock,
-  ShieldCheckIcon,
-  User,
-} from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AvailibilitySettings from "./_components/AvailibiltySettings";
+import DoctorAppointmentCard from "./_components/DoctorAppointmentCard";
 
 const page = async ({ children }) => {
   const user = await getCurrentUser();
@@ -50,10 +45,9 @@ const page = async ({ children }) => {
           </TabsTrigger>
         </TabsList>
         <div className="md:col-span-3">
-          <TabsContent
-            value={"appointment"}
-            className={"border-none p-0"}
-          ></TabsContent>
+          <TabsContent value={"appointment"} className={"border-none p-0"}>
+            <DoctorAppointmentCard appointments={appointmentsData.appointment} />
+          </TabsContent>
           <TabsContent value={"availibility"} className={"border-none p-0"}>
             <AvailibilitySettings slots={availibiltyData.slots || []} />
           </TabsContent>
