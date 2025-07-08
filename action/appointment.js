@@ -154,9 +154,9 @@ export async function bookAppointment(formData) {
     if (!doctor) {
       throw new Error("Doctor not found or not verified");
     }
-if(doctor.clerkUserId===userId){
-   throw new Error("You cant appointmet for yourself");
-}
+    if (doctor.clerkUserId === userId) {
+      throw new Error("You cant appointmet for yourself");
+    }
     const overlappingAppointments = await db.appointment.findFirst({
       where: {
         doctorId,
@@ -226,4 +226,138 @@ async function createVideoSession() {
     console.error("❌ [createVideoSession] Error:", error);
     throw new Error("Failed to create video session: " + error.message);
   }
+}
+export async function cancelAppointment(form) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  try {
+    const user = db.user.findaUnique({
+      where: {
+        clerkUserId: userId
+      }
+    })
+    if (!user) {
+      throw new Error("User not found")
+    }
+    const appointmentId = form.get("appointmentId")
+    if (!appointmentId) {
+      throw new Error("AppointmentId is required")
+    }
+    const appointment = db.appointment.findUnique({
+      where: {
+        id: appointmentId
+      },
+      include: {
+        patient: true,
+        doctor: true
+      }
+    })
+    if (!appointment) {
+      throw new Error("Appointment not found")
+    }
+    if (appointment.doctorId === user.id && appointment.patientId === userId) {
+      throw new Error("You are not allowed to cancel this appointment")
+    }
+    await db.$transaction(async (tx) => {
+      await tx.appointment.update({
+        where: {
+          id: appointmentId
+        },
+        data: {
+          status: "CANCELLED"
+        }
+      })
+      await tx.creditTransaction.create({
+        data: {
+          userId: appointment.patientId,
+          type: "APPOINTMENT_DEDUCTION",
+          amount: 2,
+        }
+      })
+      await tx.creditTransaction.create({
+        data: {
+          userId: appointment.doctorId,
+          type: "APPOINTMENT_DEDUCTION",
+          amount: -2,
+        }
+      })
+      await tx.user.update({
+        where: {
+          id: appointment.patientId,
+        },
+        data: {
+          credits: {
+
+            increment: 2,
+          }
+        }
+      })
+      await tx.user.update({
+        where: {
+          id: appointment.doctorId,
+        },
+        data: {
+          credits: {
+
+            decrement: 2,
+          }
+        }
+      })
+      if (user.role === "DOCTOR") {
+        revalidatePath("/doctor")
+      }
+      if (user.role === "PATIENT") {
+        revalidatePath("/appointments")
+      }
+    })
+    return { success: true }
+  } catch (error) {
+    console.log("Cancel Appointment" + error.message);
+    throw new Error(error.message)
+
+  }
+}
+export async function addAppointmentNotes(form) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  try {
+    const doctor = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+        role: "DOCTOR"
+      }
+    })
+    if (!doctor) {
+      throw new Error("Doctor not found")
+    }
+    const appointmentId=form.get("appointmentId");
+    const notes=form.get("notes");
+    const appointment=await db.appointment.findUnique({
+      where:{
+        id:appointmentId,
+        doctorId:doctor.id
+      }
+    })
+    if(!appointment){
+      throw new Error("Appointment not found");
+    }
+    const updateAppointment=await db.appointment.update({
+      where:{
+        id:appointmentId
+      },
+      data:{
+        notes,
+      }
+    })
+    revalidatePath("/doctor");
+    return {success:true,appointment:updateAppointment}
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message);
+  }
+
 }

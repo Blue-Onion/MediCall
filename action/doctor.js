@@ -32,7 +32,7 @@ export async function setAvailibiltySlots(formData) {
       throw new Error("Start Time must be less than End Time");
     }
 
-   const existingSlots = await db.availability.findMany({
+    const existingSlots = await db.availability.findMany({
       where: {
         doctorId: doctor.id,
       },
@@ -107,5 +107,36 @@ export async function getAvailableSlots() {
   }
 }
 export async function getDoctorAppointment() {
-  return [];
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  try {
+    const doctor = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+        role: "DOCTOR"
+      }
+    })
+    if (!doctor) {
+      throw new Error("Doctor not found")
+    }
+    const appointment = await db.appointment.findMany({
+      where: {
+        doctorId: doctor.id,
+        status: "SCHEDULED"
+      },
+      includ: {
+        patient: true
+      },
+      orderBy: {
+        startTime: "asc"
+      }
+    })
+    return {appointment}
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message);
+  }
+
 }
