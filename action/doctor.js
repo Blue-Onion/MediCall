@@ -196,7 +196,8 @@ export async function getDoctorAppointment() {
       },
       // Typo corrected: "includ" should be "include"
       include: {
-        patient: true // Include the patient's information in the results
+        patient: true ,
+        doctor:true// Include the patient's information in the results
       },
       orderBy: {
         startTime: "asc" // Order appointments by their start time in ascending order

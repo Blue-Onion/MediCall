@@ -1,10 +1,8 @@
 import React from "react";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
+
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -28,7 +26,7 @@ const DoctorAppointmentCard = ({ appointments }) => {
         {appointments.length > 0 ? (
           <div className="space-y-4">
             {appointments.map((appointment)=>{
-                return <AppointmentCard key={appointment.id}/>
+                return <AppointmentCard appointment={appointment} userRole="DOCTOR" key={appointment.id}/>
             })}
           </div>
         ) : (
