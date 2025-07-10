@@ -19,9 +19,12 @@ import {
   Check,
   CheckCircle,
   Clock,
+  Edit,
   LoaderPinwheel,
+  LoaderPinwheelIcon,
   Stethoscope,
   User,
+  Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "./ui/card";
@@ -29,12 +32,14 @@ import { format, formatDate } from "date-fns";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Textarea } from "./ui/textarea";
 
 const AppointmentCard = ({ appointment, userRole }) => {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState(false);
   const [notes, setNotes] = useState(appointment.notes || "");
-
+  const router = useRouter();
   const {
     loading: isSubmittingNotes,
     fn: submitNotes,
@@ -107,6 +112,45 @@ const AppointmentCard = ({ appointment, userRole }) => {
       setOpen(false);
     }
   }, [markedCompleteData]);
+
+  const isActiveAppointment = () => {
+    const now = new Date();
+    const appointmentSTime = appointment.startTime;
+    const appointmentETime = appointment.endTime;
+    return (
+      (appointmentSTime.getTime() - now.getTime() <= 30 * 60 * 1000 &&
+        now < appointmentSTime) ||
+      (now >= appointmentSTime && now <= appointmentETime)
+    );
+  };
+  const handleVideoCall = async () => {
+    if (isGeneratingVideoToken) return;
+    setAction("video");
+    const form = new FormData();
+    form.append("appointmentId", appointment.id);
+    await generateVideo(form);
+  };
+  const handleNotesSubmitting = async () => {
+    if (isSubmittingNotes) return;
+    const form = new FormData();
+    form.append("appointmentId", appointment.id);
+    form.append("notes", notes);
+    await submitNotes(form)
+
+  };
+  useEffect(() => {
+    if (videoToken?.success) {
+      router.push(
+        `video-call?sessionId=${videoToken.videoSessionId}&token=${videoToken.token}&$appointmentId=${appointment.id}`
+      );
+    }
+  }, [videoToken]);
+  useEffect(() => {
+    if (submittedNotesData?.success) {
+      toast.success("Notes submitted successfully")
+      setAction(null)
+    }
+  }, [submittedNotesData]);
 
   return (
     <>
@@ -203,38 +247,40 @@ const AppointmentCard = ({ appointment, userRole }) => {
               Appointment Details
             </DialogTitle>
             <DialogDescription>
-              {appointment.status==="SCHEDULED"?"Manage your upcoming appointment":"View appointment information"}
+              {appointment.status === "SCHEDULED"
+                ? "Manage your upcoming appointment"
+                : "View appointment information"}
             </DialogDescription>
-        
-              <div className="space-y-4 py-4">
-            {/* Other Party Information */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-muted-foreground">
-                {otherPartyLabel}
-              </h4>
-              <div className="flex items-center">
-                <div className="h-5 w-5 text-emerald-400 mr-2">
-                  {otherPartyIcon}
-                </div>
-                <div>
-                  <p className="text-white font-medium">
-                    {userRole === "DOCTOR"
-                      ? otherParty.name
-                      : `Dr. ${otherParty.name}`}
-                  </p>
-                  {userRole === "DOCTOR" && (
-                    <p className="text-muted-foreground text-sm">
-                      {otherParty.email}
+
+            <div className="space-y-4 py-4">
+              {/* Other Party Information */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  {otherPartyLabel}
+                </h4>
+                <div className="flex items-center">
+                  <div className="h-5 w-5 text-emerald-400 mr-2">
+                    {otherPartyIcon}
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">
+                      {userRole === "DOCTOR"
+                        ? otherParty.name
+                        : `Dr. ${otherParty.name}`}
                     </p>
-                  )}
-                  {userRole === "PATIENT" && (
-                    <p className="text-muted-foreground text-sm">
-                      {otherParty.specialty}
-                    </p>
-                  )}
+                    {userRole === "DOCTOR" && (
+                      <p className="text-muted-foreground text-sm">
+                        {otherParty.email}
+                      </p>
+                    )}
+                    {userRole === "PATIENT" && (
+                      <p className="text-muted-foreground text-sm">
+                        {otherParty.specialty}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-muted-foreground">
@@ -256,7 +302,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
                 </div>
               </div>
             </div>
-<div className="space-y-2">
+            <div className="space-y-2">
               <h4 className="text-sm font-medium text-muted-foreground">
                 Status
               </h4>
@@ -276,7 +322,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
 
             {/* Patient Description */}
             {appointment.patientDescription && (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground">
                   {userRole === "DOCTOR"
                     ? "Patient Description"
@@ -289,7 +335,106 @@ const AppointmentCard = ({ appointment, userRole }) => {
                 </div>
               </div>
             )}
+            {appointment.status === "SCHEDULED" && (
+              <div className="space-y-2">
+                <h4 className="text-sm text-muted-foreground font-medium">
+                  Video Consultaion
+                </h4>
+                <Button
+                  disabled={
+                    !isActiveAppointment() ||
+                    action !== "video" ||
+                    isGeneratingVideoToken
+                  }
+                  className={"w-full bg-emerald-600 hover:bg-emerald-700"}
+                  onClick={handleVideoCall}
+                >
+                  {isGeneratingVideoToken || action === "video" ? (
+                    <>
+                      <LoaderPinwheelIcon className="animate-spin h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      <Video className="h-4 w-4 mr-2" />
+                      {isActiveAppointment()
+                        ? "Join Video Call"
+                        : "Video call would be available 30 min before the appointment"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Doctor Notes
+                </h4>
+                {userRole === "DOCTOR" &&
+                  action !== "notes" &&
+                  appointment.status !== "CANCELLED" && (
+                    <Button
+                      variant={"ghost"}
+                      size={"sm"}
+                      onClick={() => setAction("notes")}
+                      className={
+                        "h-7 text-emerald-400 hover:text-emearld-300/20 hover:bg-emerald-700/20 "
+                      }
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      {appointment.notes ? "Edit" : "Add"} Notes
+                    </Button>
+                  )}
+              </div>
+              {userRole === "DOCTOR" && action === "notes" ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Enter your clinical notes here..."
+                    className={
+                      "bg-background border-emerald-900/20 min-h-[100px]"
+                    }
+                  />
+                  <div className="flex justify-end gap-2 items-center">
+                    <Button
+                    type="button"
+                    variant={"outline"}
+                    size="sm"
+                    onClick={()=>{
+                      setAction(null)
+                      setNotes(appointment.notes||"")
 
+                    }}
+                    disabled={isSubmittingNotes}
+                    className={"border-emerald-900/30"}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                    size="sm"
+                    onClick={handleNotesSubmitting}
+                    disabled={isSubmittingNotes}
+                    className={"bg-emerald-600 hover:bg-emerald-700"}
+                    >
+                      {isSubmittingNotes?
+                      <LoaderPinwheel className="animate-spin h-4 w-4"/>:"Save notes"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 rounded-md bg-muted/20 border-emerald-900/20 min-h-[80px]">
+                  {appointment.notes ? (
+                    <p className="text-white whitespace-pre-line">
+                      {appointment.notes}
+                    </p>
+                  ) : (
+                    <p className="text-muted-foreground italic">
+                      No notes added yet
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </DialogHeader>
         </DialogContent>
       </Dialog>
