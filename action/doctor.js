@@ -192,7 +192,7 @@ export async function getDoctorAppointment() {
     const appointment = await db.appointment.findMany({
       where: {
         doctorId: doctor.id,
-        status: "SCHEDULED" // Only fetch appointments that are scheduled
+// Only fetch appointments that are scheduled
       },
       // Typo corrected: "includ" should be "include"
       include: {

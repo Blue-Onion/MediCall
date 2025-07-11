@@ -364,7 +364,7 @@ export async function cancelAppointment(form) {
       await tx.creditTransaction.create({
         data: {
           userId: appointment.patientId,
-          type: "APPOINTMENT_REFUND", // Changed type for clarity
+          type: "APPOINTMENT_DEDUCTION", // Changed type for clarity
           amount: 2,
         }
       });
@@ -374,7 +374,7 @@ export async function cancelAppointment(form) {
       await tx.creditTransaction.create({
         data: {
           userId: appointment.doctorId,
-          type: "APPOINTMENT_CHARGEBACK", // Changed type for clarity
+          type: "APPOINTMENT_DEDUCTION", // Changed type for clarity
           amount: -2,
         }
       });

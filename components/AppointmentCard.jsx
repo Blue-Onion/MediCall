@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -25,6 +26,7 @@ import {
   Stethoscope,
   User,
   Video,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "./ui/card";
@@ -106,12 +108,31 @@ const AppointmentCard = ({ appointment, userRole }) => {
     data.append("appointmentId", appointment.id);
     await markAppointmentCompleteFn(data);
   };
+  const handleCancel = async () => {
+    if (isCancellingAppointment) return;
+    if (
+      !window.confirm(
+        `Are you sure to cancel this appointment ? This action can't undone `
+      )
+    ) {
+      return;
+    }
+    const data = new FormData();
+    data.append("appointmentId", appointment.id);
+    await cancelAppointmentFn(data);
+  };
   useEffect(() => {
-    if (markedCompleteData && markedCompleteData.success) {
+    if (markedCompleteData?.success) {
       toast.success("The appointment is marked as complete");
       setOpen(false);
     }
   }, [markedCompleteData]);
+  useEffect(() => {
+    if (cancelledAppointmentData?.success) {
+      toast.success("The appointment is Cancelled");
+      setOpen(false);
+    }
+  }, [cancelledAppointmentData]);
 
   const isActiveAppointment = () => {
     const now = new Date();
@@ -135,8 +156,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
     const form = new FormData();
     form.append("appointmentId", appointment.id);
     form.append("notes", notes);
-    await submitNotes(form)
-
+    await submitNotes(form);
   };
   useEffect(() => {
     if (videoToken?.success) {
@@ -147,8 +167,8 @@ const AppointmentCard = ({ appointment, userRole }) => {
   }, [videoToken]);
   useEffect(() => {
     if (submittedNotesData?.success) {
-      toast.success("Notes submitted successfully")
-      setAction(null)
+      toast.success("Notes submitted successfully");
+      setAction(null);
     }
   }, [submittedNotesData]);
 
@@ -397,27 +417,29 @@ const AppointmentCard = ({ appointment, userRole }) => {
                   />
                   <div className="flex justify-end gap-2 items-center">
                     <Button
-                    type="button"
-                    variant={"outline"}
-                    size="sm"
-                    onClick={()=>{
-                      setAction(null)
-                      setNotes(appointment.notes||"")
-
-                    }}
-                    disabled={isSubmittingNotes}
-                    className={"border-emerald-900/30"}
+                      type="button"
+                      variant={"outline"}
+                      size="sm"
+                      onClick={() => {
+                        setAction(null);
+                        setNotes(appointment.notes || "");
+                      }}
+                      disabled={isSubmittingNotes}
+                      className={"border-emerald-900/30"}
                     >
                       Cancel
                     </Button>
                     <Button
-                    size="sm"
-                    onClick={handleNotesSubmitting}
-                    disabled={isSubmittingNotes}
-                    className={"bg-emerald-600 hover:bg-emerald-700"}
+                      size="sm"
+                      onClick={handleNotesSubmitting}
+                      disabled={isSubmittingNotes}
+                      className={"bg-emerald-600 hover:bg-emerald-700"}
                     >
-                      {isSubmittingNotes?
-                      <LoaderPinwheel className="animate-spin h-4 w-4"/>:"Save notes"}
+                      {isSubmittingNotes ? (
+                        <LoaderPinwheel className="animate-spin h-4 w-4" />
+                      ) : (
+                        "Save notes"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -436,6 +458,31 @@ const AppointmentCard = ({ appointment, userRole }) => {
               )}
             </div>
           </DialogHeader>
+          <DialogFooter
+            className={
+              "flex flex-col-reverse sm:flex-row sm:justify-between sm:space-x-2"
+            }
+          >
+            {appointment.status === "SCHEDULED" && (
+              <Button
+                variant={"destructive"}
+                disabled={isCancellingAppointment}
+                onClick={handleCancel}
+              >
+                {isCancellingAppointment ? (
+                  <>
+                    <LoaderPinwheelIcon className="animate-spin h-4 w-4 mr-2" />
+                    Cancelling...
+                  </>
+                ) : (
+                  <>
+                  <X className="h-4 w-4"/>
+                  Cancel Appointment
+                  </>
+                )}
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
