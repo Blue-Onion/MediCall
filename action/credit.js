@@ -78,6 +78,7 @@ export async function checkAndAllocateCredits(user) {
     });
     revalidatePath("/doctor")
     revalidatePath("/appointments")
+    revalidatePath("/")
     return updatedUser;
   } catch (error) {
     console.log("Error checking and allocating credits:", error);
