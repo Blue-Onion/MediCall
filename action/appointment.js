@@ -312,23 +312,27 @@ export async function cancelAppointment(form) {
     console.warn("[cancelAppointment] Unauthorized attempt to cancel appointment.");
     throw new Error("Unauthorized");
   }
+
   try {
     console.log(`[cancelAppointment] Attempting to cancel appointment for user with Clerk ID: ${userId}`);
-    const user = await db.user.findUnique({ // Use await here
+    const user = await db.user.findUnique({
       where: {
         clerkUserId: userId
       }
     });
+
     if (!user) {
       console.warn(`[cancelAppointment] User not found for Clerk ID: ${userId}.`);
       throw new Error("User not found");
     }
+
     const appointmentId = form.get("appointmentId");
     if (!appointmentId) {
       console.warn("[cancelAppointment] Appointment ID is required for cancellation.");
       throw new Error("AppointmentId is required");
     }
-    const appointment = await db.appointment.findUnique({ // Use await here
+
+    const appointment = await db.appointment.findUnique({
       where: {
         id: appointmentId
       },
@@ -337,19 +341,30 @@ export async function cancelAppointment(form) {
         doctor: true
       }
     });
+
     if (!appointment) {
       console.warn(`[cancelAppointment] Appointment with ID ${appointmentId} not found.`);
       throw new Error("Appointment not found");
     }
+
     // Ensure only the patient or doctor associated with the appointment can cancel it
     if (appointment.doctorId !== user.id && appointment.patientId !== user.id) {
       console.warn(`[cancelAppointment] User ID ${user.id} is not allowed to cancel appointment ID ${appointmentId}.`);
       throw new Error("You are not allowed to cancel this appointment");
     }
 
+    // ❗️Add 30-minute check
+    const now = new Date();
+    const start = new Date(appointment.startTime);
+    const diffInMinutes = (start - now) / (1000 * 60);
+
+    if (diffInMinutes <= 30) {
+      console.warn(`[cancelAppointment] Cannot cancel appointment within 30 minutes. Time left: ${diffInMinutes.toFixed(2)} mins.`);
+      throw new Error("Appointments can only be cancelled more than 30 minutes in advance.");
+    }
+
     console.log(`[cancelAppointment] Initiating transaction to cancel appointment ID: ${appointmentId}`);
     await db.$transaction(async (tx) => {
-      // Update appointment status to CANCELLED
       await tx.appointment.update({
         where: {
           id: appointmentId
@@ -358,71 +373,57 @@ export async function cancelAppointment(form) {
           status: "CANCELLED"
         }
       });
-      console.log(`[cancelAppointment] Appointment ID ${appointmentId} status updated to CANCELLED.`);
 
-      // Create credit transaction for refunding patient
       await tx.creditTransaction.create({
         data: {
           userId: appointment.patientId,
-          type: "APPOINTMENT_DEDUCTION", // Changed type for clarity
+          type: "APPOINTMENT_DEDUCTION",
           amount: 2,
         }
       });
-      console.log(`[cancelAppointment] Credit transaction created for patient ID ${appointment.patientId} (refund).`);
 
-      // Create credit transaction for deducting from doctor (if applicable, e.g., for lost revenue)
       await tx.creditTransaction.create({
         data: {
           userId: appointment.doctorId,
-          type: "APPOINTMENT_DEDUCTION", // Changed type for clarity
+          type: "APPOINTMENT_DEDUCTION",
           amount: -2,
         }
       });
-      console.log(`[cancelAppointment] Credit transaction created for doctor ID ${appointment.doctorId} (chargeback).`);
 
-      // Update patient's credits
       await tx.user.update({
-        where: {
-          id: appointment.patientId,
-        },
+        where: { id: appointment.patientId },
         data: {
-          credits: {
-            increment: 2,
-          }
+          credits: { increment: 2 }
         }
       });
-      console.log(`[cancelAppointment] Patient ID ${appointment.patientId} credits incremented.`);
 
-      // Update doctor's credits
       await tx.user.update({
-        where: {
-          id: appointment.doctorId,
-        },
+        where: { id: appointment.doctorId },
         data: {
-          credits: {
-            decrement: 2,
-          }
+          credits: { decrement: 2 }
         }
       });
-      console.log(`[cancelAppointment] Doctor ID ${appointment.doctorId} credits decremented.`);
     });
 
-    // Revalidate paths based on user role
     if (user.role === "DOCTOR") {
       revalidatePath("/doctor");
       console.log("[cancelAppointment] Revalidating /doctor path.");
     }
+
     if (user.role === "PATIENT") {
       revalidatePath("/appointments");
       console.log("[cancelAppointment] Revalidating /appointments path.");
     }
+
     console.log(`[cancelAppointment] Appointment ID ${appointmentId} successfully cancelled.`);
     return { success: true };
+
   } catch (error) {
     console.error("❌ [cancelAppointment] Error:", error.message);
     throw new Error(error.message);
   }
 }
+
 
 /**
  * Adds notes to an existing appointment.

@@ -19,6 +19,7 @@ const Navbar = async () => {
   if (user?.role === "PATIENT") {
     await checkAndAllocateCredits(user);
   }
+  console.log("User in Navbar:", user);
 
   return (
     <header className="fixed top-0 bg-background/60 border border-b backdrop-blur-lg w-full z-2">
@@ -86,13 +87,14 @@ const Navbar = async () => {
                   variant={"outline"}
                 >
                   <CreditCard className="h-5 w-5" />
-                  <span>
+                  <span className="flex items-center gap-1">
+                    {user?.credits || 0} Credits
                     {user?.role === "PATIENT" ? (
                       <span className="hidden md:inline-block">
-                        {user?.credits || 0} Credits
+                        Left
                       </span>
                     ) : (
-                      <span className="hidden md:inline-block">Pricing</span>
+                      <span className="hidden md:inline-block">Earned</span>
                     )}
                   </span>
                 </Badge>

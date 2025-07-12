@@ -144,6 +144,16 @@ const AppointmentCard = ({ appointment, userRole }) => {
       (now >= appointmentSTime && now <= appointmentETime)
     );
   };
+  const canCancelAppointment = () => {
+  const now = new Date();
+  const start = new Date(appointment.startTime);
+
+  const diffInMs = start - now; // how far away the appointment is
+  const diffInMinutes = diffInMs / (1000 * 60);
+
+  return diffInMinutes > 30;
+};
+
   const handleVideoCall = async () => {
     if (isGeneratingVideoToken) return;
     setAction("video");
@@ -466,9 +476,13 @@ const AppointmentCard = ({ appointment, userRole }) => {
             {appointment.status === "SCHEDULED" && (
               <Button
                 variant={"destructive"}
-                disabled={isCancellingAppointment}
+                disabled={isCancellingAppointment||!canCancelAppointment()}
                 onClick={handleCancel}
               >
+                {!canCancelAppointment()?<>
+                Appointment Cannot be cancelled now
+                </>:
+                <>
                 {isCancellingAppointment ? (
                   <>
                     <LoaderPinwheelIcon className="animate-spin h-4 w-4 mr-2" />
@@ -480,6 +494,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
                   Cancel Appointment
                   </>
                 )}
+                </>}
               </Button>
             )}
           </DialogFooter>

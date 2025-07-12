@@ -20,7 +20,25 @@ const page = async () => {
     redirect("/onboarding");
   }
   const { appointments, error } = await getPateintAppointment();
+const sortAppointments = (appointments) => {
+  const statusOrder = {
+    "SCHEDULED": 0,
+    "COMPLETED": 1,
+    "CANCELLED": 2,
+  };
 
+  return appointments.sort((a, b) => {
+    // Compare status first
+    const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+    if (statusDiff !== 0) return statusDiff;
+
+    // If same status, sort by startTime
+    return new Date(a.startTime) - new Date(b.startTime);
+  });
+};
+
+ const sortedAppointments= sortAppointments(appointments);
+  
   return (
     <div className="mx-auto container ">
       <PageHeader
@@ -47,7 +65,7 @@ const page = async () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {appointments.map((appointment) => (
+              {sortedAppointments.map((appointment) => (
                 <AppointmentCard
                   key={appointment.id}
                   appointment={appointment}
