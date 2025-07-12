@@ -62,7 +62,7 @@ yaml
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/yourusername/medcall.git
+git clone https://github.com/Blue-Onion/medcall.git
 cd medcall
 ```
 ## .env file structure
