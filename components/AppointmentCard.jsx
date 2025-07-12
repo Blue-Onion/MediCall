@@ -363,7 +363,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
                 <Button
                   disabled={
                     !isActiveAppointment() ||
-                    action !== "video" ||
+                    action === "video" ||
                     isGeneratingVideoToken
                   }
                   className={"w-full bg-emerald-600 hover:bg-emerald-700"}
