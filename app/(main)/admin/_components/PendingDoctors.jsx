@@ -1,14 +1,12 @@
 "use client";
-import { updateDoctorActiveStatus, updateDoctorStatus } from "@/action/admin";
+import { updateDoctorStatus } from "@/action/admin";
 import useFetch from "@/hooks/useFetch";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,7 +17,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Check, ExternalLink, FileText, Medal, User, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -39,25 +36,23 @@ const PendingDoctors = ({ doctor }) => {
     setSelectedDoctor(null);
   };
   const handleUpadteStatus = async (doctorId, status) => {
-  if (loading) return;
-  const formData = new FormData();
-  formData.append("doctorId", doctorId);
-  formData.append("status", status);
-  console.log("Submitting to backend:", {
-    doctorId,
-    status,
-  });
-  await submitUpdateStatus(formData);
-};
+    if (loading) return;
+    const formData = new FormData();
+    formData.append("doctorId", doctorId);
+    formData.append("status", status);
+    console.log("Submitting to backend:", {
+      doctorId,
+      status,
+    });
+    await submitUpdateStatus(formData);
+  };
 
   useEffect(() => {
-    
-  
-if(data&&data?.success){
-  handleCloseDialog()
-}
-  }, [data])
-  
+    if (data && data?.success) {
+      handleCloseDialog();
+    }
+  }, [data]);
+
   return (
     <div>
       <Card className={"border-emerald-950/20 "}>
@@ -230,7 +225,9 @@ if(data&&data?.success){
               {loading && <BarLoader width={"100%"} color="#36d7b7" />}
               <DialogFooter className={"flex sm:justify-between"}>
                 <Button
-                  onClick={() => handleUpadteStatus(selectedDoctor.id, "REJECTED")}
+                  onClick={() =>
+                    handleUpadteStatus(selectedDoctor.id, "REJECTED")
+                  }
                   variant={"destructive"}
                   disabled={loading}
                   className={"bg-red-600  font-bold hover:bg-red-700"}
@@ -239,7 +236,9 @@ if(data&&data?.success){
                   Reject
                 </Button>
                 <Button
-                  onClick={()=>handleUpadteStatus(selectedDoctor.id, "VERIFIED")}
+                  onClick={() =>
+                    handleUpadteStatus(selectedDoctor.id, "VERIFIED")
+                  }
                   disabled={loading}
                   className={"bg-emerald-600 font-bold hover:bg-emerald-700"}
                 >

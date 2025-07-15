@@ -2,10 +2,8 @@
 import React, { useEffect, useState } from "react";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -97,10 +95,10 @@ const VerfiedDoctor = ({ doctor }) => {
           <CardContent className="grid gap-4 mt-4">
             {filteredDoctor.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-              {searchTerm
-                ? "No doctors match your search criteria."
-                : "No verified doctors available."}
-            </div>
+                {searchTerm
+                  ? "No doctors match your search criteria."
+                  : "No verified doctors available."}
+              </div>
             ) : (
               <>
                 {filteredDoctor.map((doc) => (

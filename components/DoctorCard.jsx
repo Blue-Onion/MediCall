@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { User, GraduationCap, Mail, Verified, Calendar } from "lucide-react";
+import { User,Mail, Verified, Calendar } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import Link from "next/link";

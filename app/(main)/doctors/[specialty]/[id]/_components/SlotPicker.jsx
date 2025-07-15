@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, ChevronUp, Clock } from "lucide-react";
+import { ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 const SlotPicker = ({ days, onSelectedSlot }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);

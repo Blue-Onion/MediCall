@@ -3,16 +3,6 @@ import { getPateintAppointment } from "@/action/patient";
 import PageHeader from "@/components/pageHeader";
 import { Calendar } from "lucide-react";
 import { redirect } from "next/navigation";
-
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import AppointmentCard from "@/components/AppointmentCard";
 const page = async () => {
   const user = await getCurrentUser();

@@ -30,7 +30,7 @@ export default function VideoCall({ sessionId, token }) {
 
   const appId = process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID;
 
-  // Handle script load
+  
   const handleScriptLoad = () => {
     setScriptLoaded(true);
     if (!window.OT) {
