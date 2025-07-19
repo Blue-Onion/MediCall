@@ -19,7 +19,7 @@ const Navbar = async () => {
   if (user?.role === "PATIENT") {
     await checkAndAllocateCredits(user);
   }
-  console.log("User in Navbar:", user);
+
 
   return (
     <header className="fixed top-0 bg-background/60 border border-b backdrop-blur-lg w-full z-2">
