@@ -78,6 +78,7 @@ export async function setUserRole(formData) {
 export async function getCurrentUser() {
   const { userId } = await auth();
 
+
   if (!userId) {
     throw new Error("User not authenticated");
   }
@@ -89,6 +90,7 @@ export async function getCurrentUser() {
           clerkUserId: userId,
         },
       });
+
 
     return user;
   } catch (error) {

@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import AppointmentCard from "@/components/AppointmentCard";
 const page = async () => {
   const user = await getCurrentUser();
+  console.log("User role:", user?.role );
+  
   if (!user || user.role === "DOCTOR") {
     redirect("/onboarding");
   }
