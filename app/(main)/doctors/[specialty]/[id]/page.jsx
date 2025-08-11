@@ -8,7 +8,8 @@ import { getCurrentUser } from "@/action/onboarding";
 const page = async ({ params }) => {
   const id = params.id;
 const user=getCurrentUser()
-if(user?.role!=="PATIENT"){
+if(user?.role==="DOCTOR"){
+  
   redirect("/onboarding");
 }
   try {
